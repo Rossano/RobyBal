@@ -3,10 +3,126 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:BalRobyGUI"
+        xmlns:local="clr-namespace:BalRobyGUI"        
+        xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:d3="clr-namespace:InteractiveDataDisplay.WPF;assembly=InteractiveDataDisplay.WPF"
+        x:Name="mainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="600" Width="650">
+    <Window.Resources>
+        <local:MainWindow x:Key="mainWindow" />
+        <local:VisibilityToCheckedConverter x:Key="VisibilityToCheckedConverter"/>
+    </Window.Resources>
+    <!--Window.DataContext>
+        <local:MainWindow/>
+    </-->
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
+            <Label FontSize="24">Roll</Label>
+            <Canvas Height="200" Width="200" Margin="10" Name="cvRoll">
+                <Ellipse Canvas.Left="25" Canvas.Top="25" Width="150" Height="150" Fill="Bisque" />
+                <!--Polyline Points="25,100,175,100" Stroke="Blue" StrokeThickness="10" Canvas.Left="0" Canvas.Top="0">
+                    <Polyline.RenderTransform>
+                        <!-RotateTransform Angle="{Binding Source=_core.roll}" /->
+                        <RotateTransform Angle="{Binding ElementName=lbRoll, Path=Content}" CenterX="100" CenterY="100" />
+                    </Polyline.RenderTransform>
+                </-->
+                <Rectangle Name="RollRect" Width="150" Fill="Blue" Height="10" Opacity="10" Margin="25,95" />
+            </Canvas>
+            <!--Label Content="{Binding ElementName=mainWindow, Path=MyFoo.rollStr}" /-->
+            <Label Name="lbRoll" Margin="5" Content="ROLL" />
+        </StackPanel>
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical">
+            <Label FontSize="24">Pitch</Label>
+            <Canvas Height="200" Width="200" Margin="10">
+                <Ellipse Canvas.Left="25" Canvas.Top="25" Width="150" Height="150" Fill="Bisque" />
+                <!--Polyline Points="25,100,175,100" Stroke="Blue" StrokeThickness="10" Canvas.Left="0" Canvas.Top="0" Name="PitchLine">
+                    <Polyline.RenderTransform>
+                        <!-RotateTransform Angle="{Binding Source=_core.pitch}" /->
+                        <RotateTransform CenterX="100" CenterY="100"/>
+                    </Polyline.RenderTransform>
+                </-->
+                <Rectangle Name="PitchRect" Width="150" Fill="Red" Height="10" Opacity="10" Margin="25,95"/>
+            </Canvas>
+            <!--Label Content="{Binding Text, Source=pitchStr}" /-->
+            <Label Name="lbPitch" Margin="5" Content="PITCH" />
+        </StackPanel>
+        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Vertical">
+            <Label FontSize="24">Yaw</Label>
+            <Canvas Height="200" Width="200" Margin="10">
+                <Ellipse Canvas.Left="25" Canvas.Top="25" Width="150" Height="150" Fill="Bisque" />
+                <!--Polyline Points="25,100,175,100" Stroke="Blue" StrokeThickness="10" Canvas.Left="0" Canvas.Top="0">
+                    <Polyline.RenderTransform>
+                        <!-RotateTransform Angle="{Binding Source=_core.yaw}" /->
+                        <RotateTransform Angle="{Binding ElementName=lbYaw, Path=Content}" CenterX="100" CenterY="100"/>
+                    </Polyline.RenderTransform>
+                </-->
+                <Rectangle Name="YawRect" Width="150" Height="10" Fill="GreenYellow" Opacity="10" Margin="25,95" />
+            </Canvas>
+            <!--TextBlock Text="{Binding ElementName=mainWindow, Path=yawStr}" />
+            <Label Content="{Binding ElementName=mainWindow, Path=yawStr}" /-->
+            <!--Label Content="{Binding Text, Source=yawStr}" /-->
+            <Label Name="lbYaw" Margin="5" Content="YAW"/>
+        </StackPanel>
+        <!--lvc:CartesianChart Series="{Binding SeriesCollection}" Grid.Row="1" Grid.ColumnSpan="3" MinHeight="200" Margin="5"/-->
+
+        <!--oxy:PlotView Grid.Row="1" Grid.ColumnSpan="3" Name="plot" Model="{Binding _plot}" /-->
+        <!--oxy:Plot Grid.Row="1" Title="ciccio">
+            <oxy:Plot.Series>
+                <oxy:LineSeries ItemsSource="{Binding Points}" />
+            </oxy:Plot.Series>
+        </oxy:Plot>-->
+
+        <!--ContentControl Grid.Row="1" Grid.ColumnSpan="3">
+            <views:LineChartView
+                DataContext="{Binding BalBotApplication.LineChartViewModel}"/>
+      </>-->
+        <!--d3:ChartPlotter Grid.Row="1" Grid.ColumnSpan="3" Name="plotter">
+            <d3:ChartPlotter.HorizontalAxis>
+                <d3:HorizontalDateTimeAxis Name="time"/>
+            </d3:ChartPlotter.HorizontalAxis>
+            <d3:Header FontFamily="Georgia" Content="MEMS Values"/>
+            <d3:VerticalAxisTitle FontFamily="Georgia" Content="MEMS"/>
+            <d3:HorizontalAxisTitle FontFamily="Georgia" Content="Time"/>
+            <d3:HorizontalLine Value="{Binding MaxMEMS}" Stroke="Red" StrokeThickness="2" />
+            <d3:HorizontalLine Value="{Binding MinMEMS}" Stroke="Red" StrokeThickness="2" />
+        </-->
+        <!--d3:Chart Name="plotter" Grid.Row="1" Grid.ColumnSpan="3" MinHeight="100" MinWidth="300">
+            <d3:Chart.Title>
+                <TextBlock HorizontalAlignment="Center" FontSize="18" FontFamily="Calibri" Margin="5">MEMS Data0</TextBlock>
+            </d3:Chart.Title>
+            <d3:Chart.LegendContent>
+                <d3:LegendItemsPanel>
+                    <d3:LegendItemsPanel.Resources>
+                        <DataTemplate x:Key="InteractiveDataDisplay.WPF.LineGraph">
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding Path=Visibility, Converter={StaticResource VisibilityToCheckedConverter}, Mode=TwoWay}"/>
+                                <Line Width="15" Height="15" X1="0" Y1="0" X2="15" Y2="15" Stroke="{Binding Path=Stroke}" StrokeThickness="2"/>
+                                <TextBlock Margin="5,0,0,0" Text="{Binding Path=Description}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </d3:LegendItemsPanel.Resources>
+                </d3:LegendItemsPanel>
+            </d3:Chart.LegendContent>
+            <Grid Name="lines" MinHeight="100" MinWidth="300"/>
+        </-->
+        <!--d3:Chart BottomTitle="time" LeftTitle="MEMS" Grid.Row="1" Grid.ColumnSpan="3" MinHeight="200">
+            <d3:LineGraph x:Name="linegraph" Description="Simple linegraph" Stroke="Blue" StrokeThickness="3" MinHeight="200"/>
+        </-->
+
+        <StackPanel Grid.ColumnSpan="3" Grid.Row="2" Orientation="Horizontal">
+            <ComboBox Name="lbCom" Margin="10" SelectionChanged="lbCom_SelectionChanged"/>
+            <Button Name="bConnect" Click="bConnect_Click" Content="Connect" />
+        </StackPanel>
     </Grid>
 </Window>
