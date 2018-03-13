@@ -25,6 +25,11 @@ namespace BalRobyGUI
         public TimeSpan _time { get; private set; }
         public double _data { get; private set; }
         public Queue<DataPoint> dataQ;
+        List<int> accX { get; set; }
+        List<int> accY { get; set; }
+        List<int> accZ { get; set; }
+        public List<double> time { get; set; }
+        long t = 0;
         private System.Windows.Threading.DispatcherTimer tim;
 
         public GraphWindow()
@@ -39,20 +44,34 @@ namespace BalRobyGUI
             //            tim.IsEnabled = true;
             tim.IsEnabled = false;
             tim.Tick += new EventHandler(timTick);
- //           tim.Start();
+            time = new List<double>();
+            accX = new List<int>();
+            accY = new List<int>();
+            accZ = new List<int>();
+            //           tim.Start();
+            linegraphX.Stroke = new SolidColorBrush(Colors.Blue);
+            linegraphX.StrokeThickness = 2;
+            linegraphY.Stroke = new SolidColorBrush(Colors.Red);
+            linegraphY.StrokeThickness = 2;
+            linegraphZ.Stroke = new SolidColorBrush(Colors.Green);
+            linegraphZ.StrokeThickness = 2;
+            Rect r = new Rect(0, -2048, 100, 2048);
+            DataRect dr = new DataRect(0, -2048, 10, 2048);
+            linegraphX.SetPlotRect(dr); 
+                
         }
 
         public void Plot(double[] x, double[] y)
         {
-            linegraph.Plot(x, y);
+            //linegraph.Plot(x, y);
         }
 
         public void Plot(int[] x, int[] y)
         {
-            linegraph.Plot(x, y);
+            //linegraph.Plot(x, y);
         }
 
-        public void Plot(Queue<DataPoint> data)
+        /*public void Plot(Queue<DataPoint> data)
         {
             //DataPoint[] dp = data.ToArray();
             double[] x = new double[POINTS];
@@ -67,6 +86,33 @@ namespace BalRobyGUI
             InteractiveDataDisplay.WPF.DataRect plotRect = new InteractiveDataDisplay.WPF.DataRect(x[0], y.Min(), x.Max(), y.Max());
             linegraph.SetPlotRect(plotRect);
             Plot(x,y);
+        }*/
+
+        public void Plot(int i)
+        {
+            double[] _time = new double[] { };
+            int[] acc_X = new int[] { };
+            int[] acc_Y = new int[] { };
+            int[] acc_Z = new int[] { };
+            if (time.Count > POINTS)
+            {
+                time.RemoveAt(0);
+                accX.RemoveAt(0);
+                accY.RemoveAt(0);
+                accZ.RemoveAt(0);
+            }
+            _time = time.ToArray();
+                        
+            switch (i)
+            {
+                case 0: acc_X = accX.ToArray();
+                    linegraphX.Plot(_time, acc_X); break;
+                case 1: acc_Y = accY.ToArray();
+                    linegraphY.Plot(_time, acc_Y); break;
+                case 2: acc_Z = accZ.ToArray();
+                    linegraphZ.Plot(_time, acc_Z); break;
+            }
+            
         }
 
         //public void PlotMEMS(Queue<DataPoint> data)
@@ -91,8 +137,8 @@ namespace BalRobyGUI
                     y3[i++] = dp.d3;
                 }
                 InteractiveDataDisplay.WPF.DataRect plotRect = new InteractiveDataDisplay.WPF.DataRect(time[0], y1.Min(), time.Max(), y1.Max());
-                linegraph.SetPlotRect(plotRect);
-                linegraph.Children.Add(lg);
+//                linegraph.SetPlotRect(plotRect);
+//                linegraph.Children.Add(lg);
                 lg.Plot(time, y1);
                 lg.Plot(time, y2);
                 lg.Plot(time, y3);
@@ -138,13 +184,23 @@ namespace BalRobyGUI
             DataPoint dp = new DataPoint();
             dp.x = xx;
             dp.y = 7 * (Math.Abs(xx) < 1e-10 ? 1 : Math.Sin(xx) / xx + 0);
-            dataQ.Enqueue(dp);
+ //           dataQ.Enqueue(dp);
             if (dataQ.Count > POINTS)
             {
-                dataQ.Dequeue();
-                linegraph.UpdateLayout();
+//                dataQ.Dequeue();
+ //              linegraph.UpdateLayout();
             }
-            Plot(dataQ);
+            //           Plot(dataQ);
+            time.Add(0.0 * t++);
+            accX.Add((int)(1000 * dp.y));
+        }
+
+        public void newPoint(int x, int y, int z)
+        {
+            time.Add(0.1 * t++);
+            accX.Add(x);
+            accY.Add(y);
+            accZ.Add(z);
         }
     }
 
