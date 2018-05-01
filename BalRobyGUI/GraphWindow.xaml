@@ -6,13 +6,47 @@
         xmlns:local="clr-namespace:BalRobyGUI"
         xmlns:d3="clr-namespace:InteractiveDataDisplay.WPF;assembly=InteractiveDataDisplay.WPF"
         mc:Ignorable="d"
-        Title="GraphWindow" Height="400" Width="600">
+        Title="IMU Graph" Height="750" Width="600">
     <Window.Resources>
-        
+        <ResourceDictionary>
+            
+        </ResourceDictionary>
     </Window.Resources>
     <Grid>
-        <d3:Chart BottomTitle="time" LeftTitle="MEMS" Title="MEMS Values">
+        <!--d3:Chart BottomTitle="time" LeftTitle="MEMS" Title="MEMS Values">
             <d3:LineGraph x:Name="linegraph" Description="Simple linegraph" Stroke="Blue" StrokeThickness="3"/>
-        </d3:Chart>
+        </-->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <GroupBox Grid.Row="0" Header="IMU" FontStyle="Normal" Foreground="BlanchedAlmond">
+            <d3:Figure x:Name="FigureGraph">
+                <d3:PlotAxis AxisOrientation="Left" d3:Figure.Placement="Left" Content="Acc X"/>
+                <d3:PlotAxis AxisOrientation="Bottom" d3:Figure.Placement="Bottom" Content="Time"/>
+                <d3:LineGraph x:Name="linegraphX" />
+                <d3:MouseNavigation />
+                <Border BorderThickness="1" BorderBrush="Black" />
+            </d3:Figure>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Header="IMU" FontStyle="Normal" Foreground="BlanchedAlmond">
+            <d3:Figure x:Name="FigureGraphY">
+                <d3:PlotAxis AxisOrientation="Left" d3:Figure.Placement="Left" Content="Acc Y"/>
+                <d3:PlotAxis AxisOrientation="Bottom" d3:Figure.Placement="Bottom" Content="Time"/>
+                <d3:LineGraph x:Name="linegraphY" />
+                <d3:MouseNavigation />
+                <Border BorderThickness="1" BorderBrush="Black" />
+            </d3:Figure>
+        </GroupBox>
+        <GroupBox Grid.Row="2" Header="IMU" FontStyle="Normal" Foreground="BlanchedAlmond">
+            <d3:Figure x:Name="FigureGraphZ">
+                <d3:PlotAxis AxisOrientation="Left" d3:Figure.Placement="Left" Content="Acc Z"/>
+                <d3:PlotAxis AxisOrientation="Bottom" d3:Figure.Placement="Bottom" Content="Time"/>
+                <d3:LineGraph x:Name="linegraphZ" />
+                <d3:MouseNavigation />
+                <Border BorderThickness="1" BorderBrush="Black" />
+            </d3:Figure>
+        </GroupBox>
     </Grid>
 </Window>

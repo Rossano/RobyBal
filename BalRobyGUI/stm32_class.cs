@@ -7,7 +7,7 @@ using System.IO.Ports;
 
 namespace BalRobyGUI
 {
-    class stm32_class
+    class stm32_class: IDisposable
     {
         public SerialPort _port { get; set; }
         private ulong ID = 0;
@@ -34,6 +34,12 @@ namespace BalRobyGUI
             {
                 throw ex;
             }
+        }
+
+        public void Dispose()
+        {
+            _port.Dispose();
+            responses.Clear();
         }
 
         private void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
@@ -68,6 +74,7 @@ namespace BalRobyGUI
                         msg.msg = str;
                         if (str.StartsWith(ReserwedWords.start) && str.EndsWith(ReserwedWords.end))
                         {
+//                            Console.WriteLine("STM32 Enqueue: " + str);
                             responses.Enqueue(msg);
                         }
                         /*if (!str.Contains(':'))
@@ -101,6 +108,7 @@ namespace BalRobyGUI
             }
             catch(Exception ex)
             {
+                Console.WriteLine("STM32 Exception: " + ex.Message);
                 throw ex;
             }
         }

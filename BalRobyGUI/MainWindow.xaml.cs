@@ -176,8 +176,12 @@ namespace BalRobyGUI
                         dp.d1 = _core.roll;
                         dp.d2 = _core.pitch;
                         dp.d3 = _core.yaw;
-                        _graph.AddMEMSPoint(dp);
-                        _graph.PlotMEMS();
+                        //                        _graph.AddMEMSPoint(dp);
+                        //                        _graph.PlotMEMS();
+                        _graph.newPoint(_core.acc[0], _core.acc[1], _core.acc[2]);
+                        _graph.Plot(0);
+                        _graph.Plot(1);
+                        _graph.Plot(2);
                         /*SeriesCollection[0].Values.Add((double)_core.getAccX());
                         SeriesCollection[1].Values.Add((double)_core.getAccY());
                         SeriesCollection[2].Values.Add((double)_core.getAccZ());
@@ -283,18 +287,19 @@ namespace BalRobyGUI
                  _core = new application_core(_comport, quatQueue);*/
                 _core = new application_core(_comport);
                 //                guiThread.Start();
-                uint count = 5;
+                int count = 5;
                 bool res = false;
                 do
                 {
                     res = _core.gyroCalibration();
                 }
-                while (!res || (--count>0));
+                while ((res == false) && (--count > 0));
                 _tick.Start();
                 isConnected = true;
             }
             catch (Exception ex)
             {
+                _core.Dispose();
                 ErrorMsg(ex.Message);
             }
         }

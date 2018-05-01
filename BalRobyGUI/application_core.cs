@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace BalRobyGUI
 {
-    class application_core
+    class application_core: IDisposable
     {
         private const double accSens = 0.061;
         private const double gyroSens = 70.0;
@@ -25,7 +25,7 @@ namespace BalRobyGUI
         public double pitch { get; private set; }
         public double yaw { get; private set; }
         public double dt { get; private set; }
-        private int[] acc = new int[3];
+        public int[] acc = new int[3];
         private int[] gyro = new int[3];
         private int[] gyroCal = new int[3];
         private Thread readThread;
@@ -51,6 +51,12 @@ namespace BalRobyGUI
             {
                 throw ex;
             }
+        }
+
+        public void Dispose()
+        {
+            responses.Clear();
+            stm32.Dispose();
         }
 
         private void Tick_EvtHandler(object sender, EventArgs e)
