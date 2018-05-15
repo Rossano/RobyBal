@@ -46,7 +46,12 @@ PROJECT := RobyBal
 ###############################################################################
 # Objects and Paths
 
-OBJECTS += MBED/X-NUCLEO-IHM12A1/Components/STSpin240_250/STSpin240_250.o
+OBJECTS += MBED/Motor.o
+OBJECTS += MBED/Stspin240.o
+OBJECTS += MBED/Robo_motor.o
+OBJECTS += MBED/controller.o
+OBJECTS += MBED/kalman.o
+OBJECTS += MBED/shell.o
 OBJECTS += MBED/X_NUCLEO_IKS01A2/Components/HTS221Sensor/HTS221Sensor.o
 OBJECTS += MBED/X_NUCLEO_IKS01A2/Components/HTS221Sensor/HTS221_driver.o
 OBJECTS += MBED/X_NUCLEO_IKS01A2/Components/LPS22HBSensor/LPS22HBSensor.o
