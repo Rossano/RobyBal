@@ -21,6 +21,7 @@ using System.Windows.Media;
 using Microsoft.Research.DynamicDataDisplay.DataSources;
 using System.ComponentModel;*/
 using InteractiveDataDisplay.WPF;
+using Xceed.Wpf.Toolkit;
 
 namespace BalRobyGUI
 {
@@ -33,8 +34,12 @@ namespace BalRobyGUI
         private string _comport;
         private DispatcherTimer _tick;
         private bool isConnected = false;
+        private double R = 0.005;
+        private double Q = 0.005;
         private DateTime _time;
         public GraphWindow _graph;
+        public Kalman kalman;
+        public double deltaT;       
                
         /*private double roll;
         private double pitch;
@@ -97,8 +102,11 @@ namespace BalRobyGUI
                 lg.Plot(data, data.Select(v => Math.Sin(v + i / 10.0)).ToArray());
             }*/
             double[] x1 = Enumerable.Range(0, 90).Select(i => i / 3.0).ToArray();
-            double[] y1 = x1.Select(v => 7 * (Math.Abs(v) < 1e-10 ? 1 : Math.Sin(v) / v) + 1).ToArray();            
+            double[] y1 = x1.Select(v => 7 * (Math.Abs(v) < 1e-10 ? 1 : Math.Sin(v) / v) + 1).ToArray();
             //linegraph.Plot(x1, y1);
+
+            kalman = new Kalman();
+
             _graph = new GraphWindow();
 //            _graph.Plot(x1, y1);
             _graph.Show();
@@ -170,15 +178,28 @@ namespace BalRobyGUI
                         rtYaw.CenterX = 25;
                         rtYaw.CenterY = 60;
                         YawRect.RenderTransform = rtYaw;
+
+                        ///
+                        /// Kalman Filter
+                        /// 
+                        double x = _core.getAccX() / _core.getAccZ();
+                        kalman.kalmanUpdate(_core.pitch, _core.getGyroZ() / 70.0, _core.dt);
+                        double angle = kalman.getAngle();
+                        double bias = kalman.getGyroBias();
+                        double angleErr = angle - _core.pitch;
                         DataPoint dp = new DataPoint();
                         dp._time = new DateTime();
                         dp._time = _time;
-                        dp.d1 = _core.roll;
+                        /*dp.d1 = _core.roll;
                         dp.d2 = _core.pitch;
-                        dp.d3 = _core.yaw;
+                        dp.d3 = _core.yaw;*/
+                        dp.d1 = 180 / Math.PI * angle;
+                        dp.d2 = bias;
+                        dp.d3 = 180 / Math.PI * angleErr;
                         //                        _graph.AddMEMSPoint(dp);
                         //                        _graph.PlotMEMS();
-                        _graph.newPoint(_core.acc[0], _core.acc[1], _core.acc[2]);
+                        //                        _graph.newPoint(_core.acc[0], _core.acc[1], _core.acc[2]);
+                        _graph.newPoint(180 / Math.PI * kalman.getAngle(), kalman.getGyroBias(), 180 / Math.PI * (kalman.getAngle() - _core.roll));
                         _graph.Plot(0);
                         _graph.Plot(1);
                         _graph.Plot(2);
@@ -264,6 +285,7 @@ namespace BalRobyGUI
                 uint gyroX = Convert.ToUInt32(tokens[4]);
                 uint gyroY = Convert.ToUInt32(tokens[5]);
                 uint gyroZ = Convert.ToUInt32(tokens[6]);
+                deltaT = dt / 1000;
             }
             catch (Exception ex)
             {
@@ -306,7 +328,7 @@ namespace BalRobyGUI
 
         private void ErrorMsg(string msg)
         {
-            MessageBox.Show(msg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            System.Windows.MessageBox.Show(msg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         private void lbCom_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -328,6 +350,28 @@ namespace BalRobyGUI
             }
         }
 
+        private void dudR_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            var val = (double)e.NewValue;
+            R = val;
+        }
+
+        private void dudQ_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            var val = (double)e.NewValue;
+            Q = val;
+        }
+
+        private void bReset_Click(object sender, RoutedEventArgs e)
+        {
+            kalman.angle = 0;
+            kalman.q_bias = 0;
+            double[] z = { 0, 0 };
+            kalman.X = z;
+            double[] Rv = { R, R };
+            double[] Qv = { Q, Q };
+            kalman.Init(Rv, Qv);
+        }
     }
 
     public class VisibilityToCheckedConverter : IValueConverter

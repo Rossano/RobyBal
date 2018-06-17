@@ -200,6 +200,21 @@ namespace BalRobyGUI
             return acc[2];
         }
 
+        public int getGyroX()
+        {
+            return gyro[0];
+        }
+
+        public int getGyroY()
+        {
+            return gyro[1];
+        }
+
+        public int getGyroZ()
+        {
+            return gyro[2];
+        }
+
         public bool gyroCalibration()
         {
             if (stm32 == null)

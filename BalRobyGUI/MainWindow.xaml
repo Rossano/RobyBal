@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BalRobyGUI"        
         xmlns:oxy="http://oxyplot.org/wpf"
-        xmlns:d3="clr-namespace:InteractiveDataDisplay.WPF;assembly=InteractiveDataDisplay.WPF"
+        xmlns:d3="clr-namespace:InteractiveDataDisplay.WPF;assembly=InteractiveDataDisplay.WPF"        
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         x:Name="mainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="650">
@@ -120,9 +121,16 @@
             <d3:LineGraph x:Name="linegraph" Description="Simple linegraph" Stroke="Blue" StrokeThickness="3" MinHeight="200"/>
         </-->
 
-        <StackPanel Grid.ColumnSpan="3" Grid.Row="2" Orientation="Horizontal">
+        <StackPanel Grid.ColumnSpan="1" Grid.Row="2" Orientation="Horizontal">
             <ComboBox Name="lbCom" Margin="10" SelectionChanged="lbCom_SelectionChanged"/>
             <Button Name="bConnect" Click="bConnect_Click" Content="Connect" />
+        </StackPanel>
+        <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+            <Label Height="30">R = </Label>
+            <xctk:DoubleUpDown Name="dudR" Height="30" Value="0.005" Increment="0.001" FormatString="F" ValueChanged="dudR_ValueChanged"/>
+            <Label Height="30">Q = </Label>
+            <xctk:DoubleUpDown Name="dudQ" Height="30" Value="0.005" Increment="0.001" FormatString="F" ValueChanged="dudQ_ValueChanged"/>
+            <Button Name="bReset" Margin="50,0,10,0" Click="bReset_Click">Reset</Button>
         </StackPanel>
     </Grid>
 </Window>

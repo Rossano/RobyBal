@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using InteractiveDataDisplay.WPF;
 
+
 namespace BalRobyGUI
 {
     /// <summary>
@@ -25,9 +26,12 @@ namespace BalRobyGUI
         public TimeSpan _time { get; private set; }
         public double _data { get; private set; }
         public Queue<DataPoint> dataQ;
-        List<int> accX { get; set; }
+        /*List<int> accX { get; set; }
         List<int> accY { get; set; }
-        List<int> accZ { get; set; }
+        List<int> accZ { get; set; } */
+        List<double> accX { get; set; }
+        List<double> accY { get; set; }
+        List<double> accZ { get; set; }
         public List<double> time { get; set; }
         long t = 0;
         private System.Windows.Threading.DispatcherTimer tim;
@@ -45,9 +49,12 @@ namespace BalRobyGUI
             tim.IsEnabled = false;
             tim.Tick += new EventHandler(timTick);
             time = new List<double>();
-            accX = new List<int>();
+            /*accX = new List<int>();
             accY = new List<int>();
-            accZ = new List<int>();
+            accZ = new List<int>();*/
+            accX = new List<double>();
+            accY = new List<double>();
+            accZ = new List<double>();
             //           tim.Start();
             linegraphX.Stroke = new SolidColorBrush(Colors.Blue);
             linegraphX.StrokeThickness = 2;
@@ -91,9 +98,12 @@ namespace BalRobyGUI
         public void Plot(int i)
         {
             double[] _time = new double[] { };
-            int[] acc_X = new int[] { };
+            /*int[] acc_X = new int[] { };
             int[] acc_Y = new int[] { };
-            int[] acc_Z = new int[] { };
+            int[] acc_Z = new int[] { }; */
+            double[] acc_X = new double[] { };
+            double[] acc_Y = new double[] { };
+            double[] acc_Z = new double[] { };
             if (time.Count > POINTS)
             {
                 time.RemoveAt(0);
@@ -195,7 +205,15 @@ namespace BalRobyGUI
             accX.Add((int)(1000 * dp.y));
         }
 
-        public void newPoint(int x, int y, int z)
+  /*      public void newPoint(int x, int y, int z)
+        {
+            time.Add(0.1 * t++);
+            accX.Add(x);
+            accY.Add(y);
+            accZ.Add(z);
+        }*/
+
+        public void newPoint(double x, double y, double z)
         {
             time.Add(0.1 * t++);
             accX.Add(x);
