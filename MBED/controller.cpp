@@ -16,14 +16,14 @@
 //#define DEFINE_CONTROLLER_IN_LIB
 
 #ifdef DEFINE_CONTROLLER_IN_LIB
-//_controller controller(K1_DEFAULT, K2_DEFAULT, K3_DEFAULT, K4_DEFAULT);
+_controller *controller = new _controller(K1_DEFAULT, K2_DEFAULT, K3_DEFAULT, K4_DEFAULT);
 #endif
 
 // Enable/disable controller
-//bool bEnableStateControl;
+bool bEnableStateControl;
 
-//	Compensation Force to apply
-//double F;
+//	Compensation Force to apply/
+double F;
 
 //	State vector
 #ifdef USE_STATE_VECTOR
@@ -188,5 +188,96 @@ double * _controller::get_state() {
 #endif
 
 
+// Controller Toggle ON/OFF
+void vControllerToggle(int argc, char *argv[]) {
+	if (argc != 1) {
+		vUsage((char *)"cont_toggle <0,1>");
+		printf("State: %d", bEnableStateControl);
+		/*Serial.print(F("State: "));
+		Serial.println(bEnableStateControl);*/
+	}
+	else {
+		uint8_t val = atoi(argv[0]);
+		if (val) bEnableStateControl = true;
+		else bEnableStateControl = false;
+		//Serial.print(F("arg: "));
+		//Serial.println(val);
+	}
+}
+
+// Sets feedback coefficients
+void vControllerSet(int argc, char *argv[]) {
+	if(argc != 4) {
+		vUsage((char *)"contr_set <k1> <k2> <k3> <k4>");
+		//Serial.println(argc);
+		printf("%s\n\r", (const char *)argc);
+	}
+	else {
+		double k[VECTOR_SIZE];
+		k[0] = atof(argv[0]);
+		k[1] = atof(argv[1]);
+		k[2] = atof(argv[2]);
+		k[3] = atof(argv[3]);
+
+#ifdef USE_STATE_VECTOR
+		controller->set_feedback_vector(math_comp::_vector<double, VECTOR_SIZE>(k));
+#else
+		double *foo = new double(VECTOR_SIZE);
+		for(size_t i = 0; i < VECTOR_SIZE; i++) *(foo + i) = k[i];
+		controller.set_feedback_vector(k);
+#endif
+	}
+}
+
+// Gets feedback coefficient on terminal
+void vControllerGet(int argc, char *argv[]) {
+#ifdef USE_STATE_VECTOR
+	math_comp::_vector<double,VECTOR_SIZE> _K;
+
+	_K = controller->get_feedback_vector();
+#else
+	double *_K = new double(VECTOR_SIZE);
+	_K = controller.get_feedback_vector();
+#endif
+
+	printf("state %3.4f\t%3.4f\t%3.4f\t%3.4f\n\r", _K[0], _K[1], _K[2], _K[3]);
+/*	Serial.print("cont: ");
+	Serial.print(_K[0]); Serial.print(F("\t"));
+	Serial.print(_K[1]); Serial.print(F("\t"));
+	Serial.print(_K[2]); Serial.print(F("\t"));
+	Serial.println(_K[3]);*/
+
+}
+
+// Gets the controller state on the terminal
+void vControllerState(int argc, char *argv[]) {
+#ifdef USE_STATE_VECTOR
+	math_comp::_vector<double,VECTOR_SIZE> _K;
+#else
+	double *_K = new double(VECTOR_SIZE);
+#endif
+
+	_K = controller->get_state();
+#ifdef USE_STATE_VECTOR
+	#ifdef __BOARD_YUN__
+	/*Console.print(_K[0]); Console.print(F("\t"));
+	Console.print(_K[1]); Console.print(F("\t"));
+	Console.print(_K[2]); Console.print(F("\t"));
+	Console.println(_K[3]);*/
+	#else
+	printf("state %3.4f\t%3.4f\t%3.4f\t%3.4f\n\r", _K[0], _K[1], _K[2], _K[3]);
+	/*Serial.print("state ");
+	Serial.print(_K[0]); Serial.print(F("\t"));
+	Serial.print(_K[1]); Serial.print(F("\t"));
+	Serial.print(_K[2]); Serial.print(F("\t"));
+	Serial.println(_K[3]);*/
+	#endif
+#else
 
 
+	Serial.print(*_K); Serial.print(F("\t"));
+	Serial.print(*(_K+1)); Serial.print(F("\t"));
+	Serial.print(*(_K+2)); Serial.print(F("\t"));
+	Serial.print(*(_K+3));
+#endif
+}

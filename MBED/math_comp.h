@@ -79,7 +79,7 @@ namespace math_comp {
 
 	template<class T, uint8_t size>
 	_vector<T,size>::_vector(const T val[]) {
-		for(uint8_t i; i < size; i++) el[i] = val[i];
+		for(uint8_t i=0; i < size; i++) el[i] = val[i];
 	}
 
 	template<class T, uint8_t size>
@@ -165,7 +165,7 @@ namespace math_comp {
 	//template<class T>
 	//T _vector<T>::operator*(const _vector<T> &a, const _vector<T> &b) {
 	template<class T, uint8_t size> T operator* (const _vector<T,size> &x, const _vector<T, size> &y) {
-		T res;
+		T res = 0;
 
 		for(int i = 0; i < size; i++) res += x[i] * y[i];
 

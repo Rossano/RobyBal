@@ -83,14 +83,15 @@ public:
 //	Global Variables
 //
 #ifdef DEFINE_CONTROLLER_IN_LIB
-//extern _controller controller(K1_DEFAULT, K2_DEFAULT, K3_DEFAULT, K4_DEFAULT);
- _controller *controller = new _controller(K1_DEFAULT, K2_DEFAULT, K3_DEFAULT, K4_DEFAULT);;
+extern _controller *controller; //(K1_DEFAULT, K2_DEFAULT, K3_DEFAULT, K4_DEFAULT);
+// _controller *controller = new _controller(K1_DEFAULT, K2_DEFAULT, K3_DEFAULT, K4_DEFAULT);;
 #endif // DEFINE_CONTROLLER_IN_LIB
 
 // Enable/disable controller
-bool bEnableStateControl;
+extern bool bEnableStateControl;
 //	Compensation Force to apply
-double F;
+extern double F;
+
 //	State vector
 #ifdef USE_STATE_VECTOR
 extern math_comp::_vector<double,VECTOR_SIZE> vState;
@@ -104,14 +105,12 @@ math_comp::_matrix<double, VECTOR_SIZE, VECTOR_SIZE>;
 //
 //	Function prototypes
 //
-#ifndef ARDUINO_AVR_YUN
 void vControllerToggle(int argc, char *argv[]); 		// Controller Toggle ON/OFF
 void vControllerSet(int argc, char *argv[]);			// Sets feedback coefficients
 void vControllerGet(int argc, char *argv[]);			// Gets feedback coefficient on terminal
 void vControllerState(int argc, char *argv[]);			// Gets the controller state on the terminal
 //void vControllerError(int argc, char *argv[]);			// Gets the controller error on terminal
 //void vControllerLastState(int argc, char *argv[]);		// Gets the controller last state on terminal
-#endif
 
 //} /* namespace controller */
 

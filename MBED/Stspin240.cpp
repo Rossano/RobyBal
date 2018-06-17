@@ -8,6 +8,8 @@
 #include "Motor.h"
 #include "Stspin240.h"
 
+Stspin240 * motor;
+
 Stspin240::Stspin240(PinName EN, PinName REF, PinName RST, PinName PHA, PinName PWMA, PinName PHB, PinName PWMB, unsigned int freq):
 	pwmFrequency(freq)
 {

@@ -26,11 +26,11 @@ typedef enum {
 	RIGHT
 } eMotorTurn_t;
 
-//extern eMotorTurn_t eMotorTurn;
+extern eMotorTurn_t eMotorTurn;
 //extern eMotorMove_t eMotorMove;
-eMotorTurn_t eMotorTurn;
+//eMotorTurn_t eMotorTurn;
 //eMotorMove_t eMotorMove;
-motor_direction eMotorMove;
+extern motor_direction eMotorMove;
 
 /*class _motor {
 public:
@@ -58,10 +58,10 @@ extern _motor motor;
 */
 
 //Stspin240 * motor;
-float fMotorA_Offset = 0;
-float fMotorB_Offset = 0;
-float fMotorA_Move = 0;
-float fMotorB_Move = 0;
+extern float fMotorA_Offset;
+extern float fMotorB_Offset;
+extern float fMotorA_Move;
+extern float fMotorB_Move;
 
 //
 //	Function Prototypes
