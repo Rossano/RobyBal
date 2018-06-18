@@ -430,6 +430,7 @@ void stabilizationThd()
 		pwmB = F / Fmax + fMotorB_Move + fMotorB_Offset;
 		estimated_roll = X[0];
 		gyro_bias = X[1];
+		pc.printf("Kalman: [%2.4f , %2.4f]\r\n", estimated_roll, gyro_bias);
 		if (bEnableStateControl) {
 
 				/*switch (eMotorMove) {

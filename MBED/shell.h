@@ -199,6 +199,7 @@ extern void vGetValues(int argc, char *argv[]); 		// Get the IMU and feedback va
 extern void vMotorTurn(int argc, char *argv[]); 		// Turn the Bot
 extern void vMotorMove(int argc, char *argv[]); 		// Move the Bot
 extern void vGetValues(int argc, char *argv[]); 		// Get the IMU and feedback values
+void toggle_led(int argc, char **argv);
 
 //
 //	Definition of the shell commands:
@@ -263,6 +264,8 @@ void vGetValues(int argc, char **argv)
 */
 const command_table_t ShellCommand[]  =
 {
+	{"help", "List of command", vCmdInfo},
+	{"info", "System Info", vCmdSystime},
 	{ "get_ACK", "Get Acknoledge", vSendACK },
 #ifdef USE_PID
 	{ "pid", vpidToggle	},
@@ -278,6 +281,7 @@ const command_table_t ShellCommand[]  =
 	{ "turn", "Turn Robot", vMotorTurn },
 	{ "move", "Move Robot", vMotorMove },
 	{ "get_val", "Get Robot values (ping)", vGetValues },
+	{ "LED", "Toggle LED", toggle_led},
 	{ NULL, NULL, NULL }
 };
 

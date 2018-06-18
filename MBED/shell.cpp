@@ -74,7 +74,7 @@ static int func_read(char *buf, int cnt, void *extobj)
 {
 	if (!pc.readable())
 	{
-		return 0;
+//		return 0;
 	}
     for (int i = 0; i < cnt; i++)
     {
@@ -114,13 +114,21 @@ static int func_callback(const char *text, void *extobj)
     {
         return -1;
     }
-
+#if 0
+    pc.printf("text -> %s\r\n", text);
+#endif
     for(int i = 0; i<argc; i++)
     {
         argvp[i] = ntopt_get_text(text, i, argv[i], sizeof(argv[i]));
     }
+#if 0
+    pc.printf("Parsing commands\r\n");
+#endif
     while (p->command != NULL)
     {
+#if 0
+    	pc.printf("Command: %s\r\n", p->command);
+#endif
         if(ntlibc_strcmp(argvp[0], p->command) ==0) //, p->command_len) == 0)
         {
             //char **foo = &argvp[0];
@@ -136,6 +144,15 @@ static int func_callback(const char *text, void *extobj)
     }
 
     return 0;
+}
+
+DigitalOut gpio(LED1);
+void toggle_led(int argc, char **argv)
+{
+    if(argc == 1)
+    {
+        gpio = !gpio;
+    }
 }
 #endif
 
