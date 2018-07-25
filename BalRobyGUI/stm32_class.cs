@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO.Ports;
 
 namespace BalRobyGUI
@@ -14,6 +11,7 @@ namespace BalRobyGUI
         private string _portname;
         private char _terminator = '\r';
         private string str = string.Empty;
+        private string buffer = string.Empty;
         //public ProducerConsumerQueue<MessageData> responses;        
         public Queue<MessageData> responses;
         //public ProducerConsumerQueue<string> responses;
@@ -47,34 +45,44 @@ namespace BalRobyGUI
             try
             {
                 SerialPort sp = sender as SerialPort;
-                string buffer = string.Empty;
+ //               string buffer = string.Empty;
                 if (_port.ReadBufferSize>0)
                 {
-                    buffer = sp.ReadExisting();
+                    buffer += sp.ReadExisting();
                 }
                 else if (sp.ReadBufferSize <= 0)
                 {
                     return;
                 }
-                System.Threading.Thread.Sleep(50);
+//                System.Threading.Thread.Sleep(50);
 //                string buffer = sp.ReadExisting();
                 //if (buffer.EndsWith(ReserwedWords.Syntax.End))
-                if(buffer.Contains("\r\n"))
+                if(buffer.Contains(ReserwedWords.end))
                 {
                     MessageData msg;
-                    char[] sep = { '\r', '\n' };
+                    char[] sep = { '\r', '\n', ' ' };
                     string[] s = buffer.Split(sep, StringSplitOptions.RemoveEmptyEntries);
-                    Console.Write(buffer);
+                    //                    Console.Write(buffer);
+                    //                   for (int i = 0; i <= s.Length - 1; i++) s[i] += '#';
+                    if (s.Length > 1)
+                    {
+                        buffer = s[s.Length - 1];
+                    }
+                    else
+                    {
+                        
+                    }
                     //buffer = string.Empty;
                     //                    buffer.Remove(0, buffer.IndexOf("\r\n"));
                     foreach (string str in s)
-                    {                        
-                        msg.reqId = ID++;
-                        //msg.msg = buffer;
-                        msg.msg = str;
-                        if (str.StartsWith(ReserwedWords.start) && str.EndsWith(ReserwedWords.end))
+                    {
+                        string foo = str + '#';
+                        if ((str.ToLower().StartsWith(ReserwedWords.start) || str.ToLower().StartsWith(ReservedWord.mpu)) && str.EndsWith(ReserwedWords.end))
                         {
-//                            Console.WriteLine("STM32 Enqueue: " + str);
+                            msg.reqId = ID++;
+                            //msg.msg = buffer;
+                            msg.msg = str;
+                            //                            Console.WriteLine("STM32 Enqueue: " + str);
                             responses.Enqueue(msg);
                         }
                         /*if (!str.Contains(':'))
@@ -129,7 +137,12 @@ namespace BalRobyGUI
         public void SendCommand(string cmd)
         {
             string request = cmd + ReserwedWords.Syntax.End;
-            _port.Write(request);
+            //_port.Write(request);
+            foreach(char ch in request)
+            {
+                _port.Write(ch.ToString());
+                System.Threading.Thread.Sleep(11);
+            }
         }
 
     }

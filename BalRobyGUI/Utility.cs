@@ -17,7 +17,7 @@ namespace BalRobyGUI
         public struct Syntax
         {
             public static string CR = "\r\n";
-            public static string End = "\r\n";
+            public static string End = "\r";
             public static string Separator = ",";
             public static string Space = " ";
         }

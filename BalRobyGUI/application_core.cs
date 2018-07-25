@@ -28,6 +28,11 @@ namespace BalRobyGUI
         public int[] acc = new int[3];
         private int[] gyro = new int[3];
         private int[] gyroCal = new int[3];
+        public double gyroBias { get; private set; }
+        public double Force { get; private set; }
+        public double pwmA { get; private set; }
+        public double pwmB { get; private set; }
+        public double[] K;
         private Thread readThread;
 
         //       public application_core(string com, ProducerConsumerQueue<Quaternion> quatQueue)
@@ -37,6 +42,7 @@ namespace BalRobyGUI
             {
                 //responses = new ProducerConsumerQueue<MessageData>();
                 responses = new Queue<MessageData>();
+                K = new double[4];
  //               quatBuffer = quatQueue;
                 stm32 = new stm32_class(com, responses);
                 appliTick = new DispatcherTimer();
@@ -58,6 +64,13 @@ namespace BalRobyGUI
             responses.Clear();
             stm32.Dispose();
         }
+
+        public void RequestValues()
+        {
+            string str = ReservedWord.request_data;
+            stm32.SendCommand("get_val");// str);
+        }
+
 
         private void Tick_EvtHandler(object sender, EventArgs e)
         {
@@ -114,6 +127,10 @@ namespace BalRobyGUI
                     return false;
                 }
                 int delta = Convert.ToInt16(tokens[1]);
+
+                /*
+                 * Code for the first implementation with all data coming out
+                 * 
                 acc[0] = Convert.ToInt16(tokens[2]);
                 acc[1] = Convert.ToInt16(tokens[3]);
                 acc[2] = Convert.ToInt16(tokens[4]);
@@ -127,6 +144,26 @@ namespace BalRobyGUI
                 roll = alpha * GetRoll() + (1 - alpha) * ((double)(gyro[0] - gyroCal[0]) / gyroSens * (double)dt + roll);
                 pitch = alpha * GetPitch() + (1 - alpha) * ((double)(gyro[2] - gyroCal[2]) / gyroSens * dt  + pitch);
                 yaw = alpha * GetYaw() + (1 - alpha) * ((double)(gyro[1] - gyroCal[1]) / gyroSens * (float)dt);
+                */
+
+                /*
+                 * Code for the Application GUI
+                 */
+                dt = (double)delta / 1000;
+
+                try
+                {
+                    pitch = Convert.ToDouble(tokens[2]);
+                    gyroBias = Convert.ToDouble(tokens[3]);
+                    Force = Convert.ToDouble(tokens[4]);
+                    pwmA = Convert.ToDouble(tokens[5]);
+                    pwmB = Convert.ToDouble(tokens[6]);
+                }
+                catch (Exception ex)
+                {
+
+                    return false;
+                }
 
                 return true;
             }
@@ -259,6 +296,118 @@ namespace BalRobyGUI
             {
                 throw ex;
             }
+        }
+
+        public void getControllerValues()
+        {
+            string cmd = ReservedWord.controller_get;
+            stm32.SendCommand(cmd);
+        }
+
+        public void setControllerValues(double k1, double k2, double k3, double k4)
+        {
+            StringBuilder sb = new StringBuilder(ReservedWord.controller_set);
+            sb.Append(ReservedWord.sep).Append(k1).Append(ReservedWord.sep).Append(k2);
+            sb.Append(ReservedWord.sep).Append(k3).Append(ReservedWord.sep).Append(k4);
+            stm32.SendCommand(sb.ToString());
+        }
+
+        public bool parseMsgValues(MessageData msg)
+        {            
+            try
+            {
+                string[] tokens;
+                char[] separators = { ',', ':', ' ', ':' };
+                tokens = msg.msg.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+                // Check if the input string is well formed and complete
+                int index = tokens[6].IndexOf(ReserwedWords.end);
+                if (index > 0)
+                {
+                    tokens[6].Substring(0, index + 1);
+                }
+                ///if (!(tokens[0].ToLower().Equals(ReservedWord.mpu) && tokens[7].ToLower().Equals(ReserwedWords.end)))
+                if (!(tokens[0].ToLower().Equals(ReservedWord.mpu) && tokens[6].ToLower().EndsWith(ReserwedWords.end)))
+                {
+                    return false;
+                }
+                int delta = Convert.ToInt16(tokens[1]);
+                
+                dt = (double)delta / 1000;
+
+                try
+                {                    
+                    pitch = Convert.ToDouble(tokens[2], System.Globalization.CultureInfo.InvariantCulture);
+                    gyroBias = Convert.ToDouble(tokens[3], System.Globalization.CultureInfo.InvariantCulture);
+                    Force = Convert.ToDouble(tokens[4], System.Globalization.CultureInfo.InvariantCulture);
+                    pwmA = Convert.ToDouble(tokens[5], System.Globalization.CultureInfo.InvariantCulture);
+                    tokens[6] = tokens[6].Remove(tokens[6].Length - 1);
+                    pwmB = Convert.ToDouble(tokens[6], System.Globalization.CultureInfo.InvariantCulture);
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool parseMsgContrGet(MessageData msg)
+        {
+            try
+            {
+                string[] tokens;
+                char[] separators = { ',', ':', ' ' };
+                tokens = msg.msg.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+                // Check if the input string is well formed and complete
+                if (!(tokens[0].ToLower().Equals(ReservedWord.mpu) && tokens[5].ToLower().Equals(ReserwedWords.end)))
+                {
+                    return false;
+                }                
+
+                try
+                {
+                    K[0] = Convert.ToDouble(tokens[1]);
+                    K[1] = Convert.ToDouble(tokens[2]);
+                    K[2] = Convert.ToDouble(tokens[3]);
+                    K[3] = Convert.ToDouble(tokens[4]);
+                }
+                catch (Exception ex)
+                {
+
+                    return false;
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public void controllerToggle()
+        {
+            string cmd = ReservedWord.controller_toggle;
+            stm32.SendCommand(cmd);
+        }
+
+        public void controllerSet(bool active)
+        {
+            string cmd;
+            if (active)
+            {
+                cmd = ReservedWord.controller_get + " 1";
+            }
+            else
+            {
+                cmd = ReservedWord.controller_set + " 0";
+            }
+            stm32.SendCommand(cmd);
         }
 
         /*private void updateThread()

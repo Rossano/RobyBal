@@ -109,6 +109,7 @@
       <DependentUpon>GraphWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Kalman.cs" />
+    <Compile Include="ReservedWord.cs" />
     <Compile Include="stm32_class.cs" />
     <Compile Include="Utility.cs" />
     <Page Include="GraphWindow.xaml">

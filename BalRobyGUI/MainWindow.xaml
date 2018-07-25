@@ -10,10 +10,10 @@
         x:Name="mainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="650">
-    <Window.Resources>
+    <!--Window.Resources>
         <local:MainWindow x:Key="mainWindow" />
         <local:VisibilityToCheckedConverter x:Key="VisibilityToCheckedConverter"/>
-    </Window.Resources>
+    </-->
     <!--Window.DataContext>
         <local:MainWindow/>
     </-->
@@ -29,52 +29,104 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
-            <Label FontSize="24">Roll</Label>
+            <!--Label FontSize="24">Roll</>
             <Canvas Height="200" Width="200" Margin="10" Name="cvRoll">
                 <Ellipse Canvas.Left="25" Canvas.Top="25" Width="150" Height="150" Fill="Bisque" />
-                <!--Polyline Points="25,100,175,100" Stroke="Blue" StrokeThickness="10" Canvas.Left="0" Canvas.Top="0">
+                <!-Polyline Points="25,100,175,100" Stroke="Blue" StrokeThickness="10" Canvas.Left="0" Canvas.Top="0">
                     <Polyline.RenderTransform>
                         <!-RotateTransform Angle="{Binding Source=_core.roll}" /->
                         <RotateTransform Angle="{Binding ElementName=lbRoll, Path=Content}" CenterX="100" CenterY="100" />
                     </Polyline.RenderTransform>
-                </-->
+                </-> 
                 <Rectangle Name="RollRect" Width="150" Fill="Blue" Height="10" Opacity="10" Margin="25,95" />
             </Canvas>
-            <!--Label Content="{Binding ElementName=mainWindow, Path=MyFoo.rollStr}" /-->
-            <Label Name="lbRoll" Margin="5" Content="ROLL" />
+            <!-Label Content="{Binding ElementName=mainWindow, Path=MyFoo.rollStr}" />
+            <Label Name="lbRoll" Margin="5" Content="ROLL" /> -->
+            <StackPanel Orientation="Horizontal">
+                <Label>Yaw Angle</Label>
+                <Label Name="YawAngle" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label>Roll Angle</Label>
+                <Label Name="RollAngle" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label>Pitch Angle</Label>
+                <Label Name="PitchAngle" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label>Gyro Spped</Label>
+                <Label Name="GyroSpeed" />
+            </StackPanel>
+            <Separator />
+            <StackPanel Orientation="Horizontal">
+                <Label>Force</Label>
+                <Label Name="Force" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label>PWM Motor Left</Label>
+                <Label Name="PWMLeft" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label>PWM Motor Right</Label>
+                <Label Name="PWMRight" />
+            </StackPanel>
         </StackPanel>
         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical">
-            <Label FontSize="24">Pitch</Label>
-            <Canvas Height="200" Width="200" Margin="10">
-                <Ellipse Canvas.Left="25" Canvas.Top="25" Width="150" Height="150" Fill="Bisque" />
-                <!--Polyline Points="25,100,175,100" Stroke="Blue" StrokeThickness="10" Canvas.Left="0" Canvas.Top="0" Name="PitchLine">
+                <Label FontSize="24">Pitch</Label>
+                <Canvas Height="200" Width="200" Margin="10">
+                    <Ellipse Canvas.Left="25" Canvas.Top="25" Width="150" Height="150" Fill="Bisque" />
+                    <!--Polyline Points="25,100,175,100" Stroke="Blue" StrokeThickness="10" Canvas.Left="0" Canvas.Top="0" Name="PitchLine">
                     <Polyline.RenderTransform>
                         <!-RotateTransform Angle="{Binding Source=_core.pitch}" /->
                         <RotateTransform CenterX="100" CenterY="100"/>
                     </Polyline.RenderTransform>
                 </-->
-                <Rectangle Name="PitchRect" Width="150" Fill="Red" Height="10" Opacity="10" Margin="25,95"/>
-            </Canvas>
-            <!--Label Content="{Binding Text, Source=pitchStr}" /-->
-            <Label Name="lbPitch" Margin="5" Content="PITCH" />
-        </StackPanel>
+                    <Rectangle Name="PitchRect" Width="150" Fill="Red" Height="10" Opacity="10" Margin="25,95"/>
+                </Canvas>
+                <!--Label Content="{Binding Text, Source=pitchStr}" /-->
+                <Label Name="lbPitch" Margin="5" Content="PITCH" />
+            </StackPanel>
+
         <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Vertical">
-            <Label FontSize="24">Yaw</Label>
+            <!--Label FontSize="24">Yaw</>
             <Canvas Height="200" Width="200" Margin="10">
                 <Ellipse Canvas.Left="25" Canvas.Top="25" Width="150" Height="150" Fill="Bisque" />
-                <!--Polyline Points="25,100,175,100" Stroke="Blue" StrokeThickness="10" Canvas.Left="0" Canvas.Top="0">
+                <!-Polyline Points="25,100,175,100" Stroke="Blue" StrokeThickness="10" Canvas.Left="0" Canvas.Top="0">
                     <Polyline.RenderTransform>
                         <!-RotateTransform Angle="{Binding Source=_core.yaw}" /->
                         <RotateTransform Angle="{Binding ElementName=lbYaw, Path=Content}" CenterX="100" CenterY="100"/>
                     </Polyline.RenderTransform>
-                </-->
+                </->
                 <Rectangle Name="YawRect" Width="150" Height="10" Fill="GreenYellow" Opacity="10" Margin="25,95" />
             </Canvas>
-            <!--TextBlock Text="{Binding ElementName=mainWindow, Path=yawStr}" />
-            <Label Content="{Binding ElementName=mainWindow, Path=yawStr}" /-->
-            <!--Label Content="{Binding Text, Source=yawStr}" /-->
-            <Label Name="lbYaw" Margin="5" Content="YAW"/>
+            <!-TextBlock Text="{Binding ElementName=mainWindow, Path=yawStr}" />
+            <Label Content="{Binding ElementName=mainWindow, Path=yawStr}" /->
+            <!-Label Content="{Binding Text, Source=yawStr}" /->
+            <Label Name="lbYaw" Margin="5" Content="YAW"/-->
+            <StackPanel Orientation="Horizontal">
+                <Label Margin="10">K1 :  </Label>
+                <TextBox Name="guiK1" TextChanged="guiK1_TextChanged" MinWidth="30" MinHeight="25" Margin="10" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Margin="10">K2 :</Label>
+                <TextBox Name="guiK2" TextChanged="guiK2_TextChanged" MinWidth="30" MinHeight="25" Margin="10" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Margin="10">K3 :</Label>
+                <TextBox Name="guiK3" TextChanged="guiK3_TextChanged" MinWidth="30" MinHeight="25" Margin="10" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Margin="10">K4 :</Label>
+                <TextBox Name="guiK4" TextChanged="guiK4_TextChanged" MinWidth="30" MinHeight="25" Margin="10" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Margin="5">Controller Status : </Label>
+                <CheckBox Name="cbContrActivation" Checked="cbContrActivation_Checked" Unchecked="cbContrActivation_Unchecked" Margin="5">Controller Active</CheckBox>
+            </StackPanel>
+            <Button Name="bReadCoeff" Click="bReadCoeff_Click" Margin="5" MaxHeight="25" MaxWidth="150">Read Controller Coeff</Button>
         </StackPanel>
+        
         <!--lvc:CartesianChart Series="{Binding SeriesCollection}" Grid.Row="1" Grid.ColumnSpan="3" MinHeight="200" Margin="5"/-->
 
         <!--oxy:PlotView Grid.Row="1" Grid.ColumnSpan="3" Name="plot" Model="{Binding _plot}" /-->

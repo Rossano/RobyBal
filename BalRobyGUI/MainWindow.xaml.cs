@@ -39,14 +39,19 @@ namespace BalRobyGUI
         private DateTime _time;
         public GraphWindow _graph;
         public Kalman kalman;
-        public double deltaT;       
+        public double deltaT;
+        private double K1;
+        private double K2;
+        private double K3;
+        private double K4;
+        private bool useKalman = false;
                
         /*private double roll;
         private double pitch;
         private double yaw;*/
-        private string rollStr;
+ //       private string rollStr;
         private string pitchStr;
-        public string yawStr;
+ //       public string yawStr;
         // Graphic Data Structures
 //       public PlotModel _plot { get; private set; }
 //       public IList<DataPoint> Points { get; private set; }
@@ -119,7 +124,7 @@ namespace BalRobyGUI
             MaxMEMS = 1024;
             MinMEMS = -1024;
 
-            TimeSpan ts = new TimeSpan(0, 0, 0, 0, 250);
+            TimeSpan ts = new TimeSpan(0, 0, 0, 0, 4*250);
             _tick = new DispatcherTimer();
             _tick.Interval = ts;
             _tick.Tick += new EventHandler(TickHandler);
@@ -150,6 +155,8 @@ namespace BalRobyGUI
             {
                 i++;
                 _time += _tick.Interval;
+                //               _core.RequestValues();
+                _core.RequestValues();
  //               MEMSPointCollection.Add(new MEMSPoint((int)(1024*Math.Sin(i * 0.1)), DateTime.Now));
                 if (_core.responses.Count > 0)
                 {
@@ -159,17 +166,24 @@ namespace BalRobyGUI
                     for (i = 0; i < count; i++)
                     {
                         MessageData msg = _core.responses.Dequeue();
-                        _core.ParseMessage(msg);
-                        rollStr = _core.roll.ToString();
+                        // OLD
+                        //_core.ParseMessage(msg);
+                        //
+                        if (_core.parseMsgValues(msg) == false)
+                        {
+                            return;
+                        }
+
+//                        rollStr = _core.roll.ToString();
                         pitchStr = _core.pitch.ToString();
-                        yawStr = _core.yaw.ToString();
-                        lbRoll.Content = rollStr;
+ //                       yawStr = _core.yaw.ToString();
+ //                      lbRoll.Content = rollStr;
                         lbPitch.Content = pitchStr;
-                        lbYaw.Content = yawStr;
+ //                       lbYaw.Content = yawStr;
                         RotateTransform rtRoll = new RotateTransform(_core.roll * 180 / Math.PI, 25, 60);
                         rtRoll.CenterX = 25;
                         rtRoll.CenterY = 60;
-                        RollRect.RenderTransform = rtRoll;
+ //                       RollRect.RenderTransform = rtRoll;
                         RotateTransform rtPitch = new RotateTransform(_core.pitch * 180 / Math.PI, 25, 60);
                         rtPitch.CenterX = 25;
                         rtPitch.CenterY = 60;
@@ -177,15 +191,26 @@ namespace BalRobyGUI
                         RotateTransform rtYaw = new RotateTransform(_core.yaw * 180 / Math.PI, 25, 60);
                         rtYaw.CenterX = 25;
                         rtYaw.CenterY = 60;
-                        YawRect.RenderTransform = rtYaw;
+                        //                       YawRect.RenderTransform = rtYaw;
 
                         ///
                         /// Kalman Filter
                         /// 
-                        double x = _core.getAccX() / _core.getAccZ();
-                        kalman.kalmanUpdate(_core.pitch, _core.getGyroZ() / 70.0, _core.dt);
-                        double angle = kalman.getAngle();
-                        double bias = kalman.getGyroBias();
+                        double x; 
+                        double angle;
+                        double bias;
+                        if (useKalman)
+                        {
+                            x = _core.getAccX() / _core.getAccZ();
+                            kalman.kalmanUpdate(_core.pitch, _core.getGyroZ() / 70.0, _core.dt);
+                            angle = kalman.getAngle();
+                            bias = kalman.getGyroBias();
+                        }
+                        else
+                        {
+                            angle = _core.pitch;
+                            bias = _core.gyroBias;
+                        }
                         double angleErr = angle - _core.pitch;
                         DataPoint dp = new DataPoint();
                         dp._time = new DateTime();
@@ -199,7 +224,14 @@ namespace BalRobyGUI
                         //                        _graph.AddMEMSPoint(dp);
                         //                        _graph.PlotMEMS();
                         //                        _graph.newPoint(_core.acc[0], _core.acc[1], _core.acc[2]);
-                        _graph.newPoint(180 / Math.PI * kalman.getAngle(), kalman.getGyroBias(), 180 / Math.PI * (kalman.getAngle() - _core.roll));
+                        if(useKalman)
+                        {
+                            _graph.newPoint(180 / Math.PI * kalman.getAngle(), kalman.getGyroBias(), 180 / Math.PI * (kalman.getAngle() - _core.roll));
+                        }
+                        else
+                        {
+                            _graph.newPoint(180 / Math.PI * _core.pitch, _core.gyroBias, (_core.Force));
+                        }
                         _graph.Plot(0);
                         _graph.Plot(1);
                         _graph.Plot(2);
@@ -218,8 +250,8 @@ namespace BalRobyGUI
                         //                        data2.Add((double)_core.getAccY());
                         //                        if (data3.Count > 100) data3.Remove(data3[0]);
                         //                        data3.Add((double)_core.getAccZ());
-                        cvRoll.UpdateLayout();
-                        lbRoll.Content = "ROLL = " + rollStr;
+ //                       cvRoll.UpdateLayout();
+ //                       lbRoll.Content = "ROLL = " + rollStr;
                     }
                     //while (count-- > 0);
 /*                    double[] foo = new double[100];
@@ -313,7 +345,7 @@ namespace BalRobyGUI
                 bool res = false;
                 do
                 {
-                    res = _core.gyroCalibration();
+//                    res = _core.gyroCalibration();
                 }
                 while ((res == false) && (--count > 0));
                 _tick.Start();
@@ -372,8 +404,80 @@ namespace BalRobyGUI
             double[] Qv = { Q, Q };
             kalman.Init(Rv, Qv);
         }
-    }
 
+        private void guiK1_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var _k1 = guiK1.Text; //(string)sender;
+            try
+            {
+                K1 = Convert.ToDouble(_k1);
+            }
+            catch(Exception ex)
+            {
+                ErrorMsg("Error converting K1\n" + ex.Message);
+            }
+        }
+
+        private void guiK2_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var _k2 = guiK2.Text;//(string)sender;
+            try
+            {
+                K2 = Convert.ToDouble(_k2);
+            }
+            catch(Exception ex)
+            {
+                ErrorMsg("Error converting K2\n" + ex.Message);
+            }
+        }
+
+        private void guiK3_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var _k3 = guiK3.Text;//(string)sender;
+            try
+            {
+                K3 = Convert.ToDouble(_k3);
+            }
+            catch(Exception ex)
+            {
+                ErrorMsg("Error converting K3\n" + ex.Message);
+            }
+        }
+
+        private void guiK4_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var _k4 = guiK4.Text;//(string)sender;
+            try
+            {
+                K4 = Convert.ToDouble(_k4);
+            }
+            catch(Exception ex)
+            {
+                ErrorMsg("Error converting K4\n" + ex.Message);
+            }
+        }
+
+        private void cbContrActivation_Checked(object sender, RoutedEventArgs e)
+        {
+            _core.controllerSet(true);
+        }
+
+        private void cbContrActivation_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _core.controllerSet(false);
+        }
+
+        private void bReadCoeff_Click(object sender, RoutedEventArgs e)
+        {
+            string msg = ReservedWord.controller_get;
+            _core.getControllerValues();
+            guiK1.Text = K1.ToString();
+            guiK2.Text = K2.ToString();
+            guiK3.Text = K3.ToString();
+            guiK4.Text = K4.ToString();
+        }
+    }
+/*
     public class VisibilityToCheckedConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -386,4 +490,5 @@ namespace BalRobyGUI
             return ((bool)value) ? Visibility.Visible : Visibility.Collapsed;
         }
     }
+    */
 }
