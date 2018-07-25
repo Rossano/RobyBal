@@ -8,6 +8,8 @@
 #include "mbed.h"
 #include "Motor.h"
 
+motor_direction eMotorMove;
+
 Motor::Motor(PinName EN, PinName DIR, PinName PWM, uint16_t FREQ)
 {
 	enable = new DigitalOut(EN);

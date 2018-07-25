@@ -62,6 +62,6 @@ public:
 	void resetDebug();
 };
 
-Stspin240 * motor;
+extern Stspin240 * motor;
 
 #endif /* STSPIN240_H_ */

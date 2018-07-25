@@ -18,6 +18,7 @@ class ExtendedClock: public TimerEvent
 public:
 	ExtendedClock()
 	{
+		mTriggers = 0;
 		// This also starts the us ticker.
 		insert(0x40000000);
 	}
@@ -47,7 +48,7 @@ public:
 	    }
 
 	    // The number of times the us_ticker has rolled over.
-	    uint32_t mTriggers = 0;
+	    uint32_t mTriggers;// = 0;
 };
 
 // Return the number of seconds since boot.

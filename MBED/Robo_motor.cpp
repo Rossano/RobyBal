@@ -11,8 +11,12 @@
 #include "Stspin240.h"
 
 
-//eMotorTurn_t eMotorTurn;
+eMotorTurn_t eMotorTurn;
 //eMotorMove_t eMotorMove;
+float fMotorA_Offset = 0;
+float fMotorB_Offset = 0;
+float fMotorA_Move = 0;
+float fMotorB_Move = 0;
 
 //_motor motor;
 
@@ -142,7 +146,7 @@ int _motor::getPWM_B()
 void vMotorTurn(int argc, char *argv[]) 		// Turn the Bot
 {
 	if(argc != 1) {
-		vUsage("turn <0=NO_TURN, 1=LEFT, 2=RIGHT");
+		vUsage((char *)"turn <0=NO_TURN, 1=LEFT, 2=RIGHT");
 	}
 	else {
 		uint8_t val = atoi(argv[0]);
@@ -183,7 +187,7 @@ void vMotorTurn(int argc, char *argv[]) 		// Turn the Bot
 void vMotorMove(int argc, char *argv[]) 		// Move the Bot
 {
 	if(argc != 2) {
-		vUsage("move <0=STOP 1=FORWARD 2=BACKWARD>");
+		vUsage((char *)"move <0=STOP 1=FORWARD 2=BACKWARD>");
 	}
 	else {
 		uint8_t val = atoi(argv[0]);
