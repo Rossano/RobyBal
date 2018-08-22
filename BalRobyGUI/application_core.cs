@@ -15,12 +15,11 @@ namespace BalRobyGUI
         private const double gyroSens = 70.0;
         private const double alpha = 0.9;
         private stm32_class stm32;
-        //public ProducerConsumerQueue<MessageData> responses;
+
         public Queue<MessageData> responses;
-        //private ProducerConsumerQueue<Quaternion> quatBuffer;
-        //private System.Threading.Timer appliTick;
+
         private DispatcherTimer appliTick;
- //       private Quaternion q;
+ 
         public double roll { get; private set; }
         public double pitch { get; private set; }
         public double yaw { get; private set; }
@@ -43,15 +42,12 @@ namespace BalRobyGUI
                 //responses = new ProducerConsumerQueue<MessageData>();
                 responses = new Queue<MessageData>();
                 K = new double[4];
- //               quatBuffer = quatQueue;
+ 
                 stm32 = new stm32_class(com, responses);
                 appliTick = new DispatcherTimer();
                 appliTick.Interval = new TimeSpan(0, 0, 0, 0, 250);
                 appliTick.Tick += new EventHandler(Tick_EvtHandler);
- //               appliTick.IsEnabled = true;
- //               readThread = new Thread(updateThread);
- //               readThread.Start();
-//                appliTick.Start();
+
             }
             catch (Exception ex)
             {
@@ -65,43 +61,42 @@ namespace BalRobyGUI
             stm32.Dispose();
         }
 
+#region Requests Methods
+
         public void RequestValues()
         {
             string str = ReservedWord.request_data;
             stm32.SendCommand("get_val");// str);
         }
 
+        public void RequestControllerCoeff()
+        {
+            string str = ReservedWord.controller_get;
+            stm32.SendCommand(str);
+        }
+
+        public void SetController(string k1, string k2, string k3, string k4)
+        {
+            string str = ReservedWord.controller_set;
+            str += " " + k1 + " " + k2 + " " + k3 + " " + k4;
+            stm32.SendCommand(str);
+        }
+
+        public void ControllerToggle()
+        {
+            string str = ReservedWord.controller_toggle;
+            stm32.SendCommand(str);
+        }
+
+        #endregion
+
+#region Handlers
 
         private void Tick_EvtHandler(object sender, EventArgs e)
         {
             try
             {
-                /*DispatcherTimer watchDog = new DispatcherTimer();
-                watchDog.Interval = new TimeSpan(0, 0, 5);
-                watchDog.Tick += new EventHandler(watchDog_Handler);
-                watchDog.IsEnabled = true;
-                watchDog.Start();*/
-                /*Queue<MessageData>.Enumerator foo = responses.GetEnumerator();                
-                //foreach(MessageData msg in foo)
-                while(foo.MoveNext())
-                {
-                    ParseMessage(foo.Current);
-                }*/
-                /*
-                if (responses.Count != 0)
-                {
-                    var copyQueue = new ProducerConsumerQueue<MessageData>(responses);
-                    lock (copyQueue)
-                    {
-                        foreach(MessageData msg in copyQueue.InnerQueue)
-                        {
-                            ParseMessage(msg);
-                            Quaternion q = new Quaternion(0.0, roll, pitch, yaw);
-                            quatBuffer.Enqueue(q);
-                        }
-                    }
-                    responses.Clear();
-                }*/
+
             }
             catch (Exception ex)
             {
@@ -114,64 +109,108 @@ namespace BalRobyGUI
             throw new ObjectDisposedException("STM32 is out of line!");
         }
 
+        #endregion
+
+        #region Parse Messages
+
         public bool ParseMessage(MessageData msg)
         {
             try
             {
                 string[] tokens;
-                char[] separators = { ',', ':', ' ' }; 
+                char[] separators = { ',', ':', ' ' };
                 tokens = msg.msg.Split(separators, StringSplitOptions.RemoveEmptyEntries);
-                // Check if the input string is well formed and complete
-                if(!(tokens[0].ToLower().Equals(ReserwedWords.start) && tokens[8].ToLower().Equals(ReserwedWords.end)))
+
+                if (tokens[0].ToLower().Equals(ReservedWord.mpu))
+                {
+                    return parseMsgValues(tokens);
+                }
+                else if(tokens[0].ToLower().Equals(ReservedWord.controller_get))
+                {
+                    return parseMsgContrGet(tokens);
+                }
+                else
                 {
                     return false;
                 }
-                int delta = Convert.ToInt16(tokens[1]);
-
-                /*
-                 * Code for the first implementation with all data coming out
-                 * 
-                acc[0] = Convert.ToInt16(tokens[2]);
-                acc[1] = Convert.ToInt16(tokens[3]);
-                acc[2] = Convert.ToInt16(tokens[4]);
-                gyro[0] = Convert.ToInt16(tokens[5]);
-                gyro[1] = Convert.ToInt16(tokens[6]);
-                gyro[2] = Convert.ToInt16(tokens[7]);
-
-                dt = (double)delta / 1000;
-               // roll = alpha * GetRoll() + (1 - alpha) * ((double)(gyro[0] - gyroCal[0]) / gyroSens * (double)dt * 180 / Math.PI + roll);
-                //pitch = alpha * GetPitch() + (1 - alpha) * ((double)(gyro[2] - gyroCal[2]) / gyroSens * dt * 180 / Math.PI + pitch);
-                roll = alpha * GetRoll() + (1 - alpha) * ((double)(gyro[0] - gyroCal[0]) / gyroSens * (double)dt + roll);
-                pitch = alpha * GetPitch() + (1 - alpha) * ((double)(gyro[2] - gyroCal[2]) / gyroSens * dt  + pitch);
-                yaw = alpha * GetYaw() + (1 - alpha) * ((double)(gyro[1] - gyroCal[1]) / gyroSens * (float)dt);
-                */
-
-                /*
-                 * Code for the Application GUI
-                 */
-                dt = (double)delta / 1000;
-
-                try
-                {
-                    pitch = Convert.ToDouble(tokens[2]);
-                    gyroBias = Convert.ToDouble(tokens[3]);
-                    Force = Convert.ToDouble(tokens[4]);
-                    pwmA = Convert.ToDouble(tokens[5]);
-                    pwmB = Convert.ToDouble(tokens[6]);
-                }
-                catch (Exception ex)
-                {
-
-                    return false;
-                }
-
-                return true;
             }
             catch
             {
                 return false;
             }
         }
+        
+        //public bool ParseMsgValue (string[] tokens)
+        //{
+        //    try
+        //    {            
+        //        // Check if the input string is well formed and complete
+        //        if(!(tokens[0].ToLower().Equals(ReserwedWords.start) && tokens[8].ToLower().Equals(ReserwedWords.end)))
+        //        {
+        //            return false;
+        //        }
+        //        int delta = Convert.ToInt16(tokens[1]);
+
+        //        /*
+        //         * Code for the Application GUI
+        //         */
+        //        dt = (double)delta / 1000;
+
+        //        try
+        //        {
+        //            pitch = Convert.ToDouble(tokens[2]);
+        //            gyroBias = Convert.ToDouble(tokens[3]);
+        //            Force = Convert.ToDouble(tokens[4]);
+        //            pwmA = Convert.ToDouble(tokens[5]);
+        //            pwmB = Convert.ToDouble(tokens[6]);
+        //        }
+        //        catch (Exception ex)
+        //        {
+
+        //            return false;
+        //        }
+
+        //        return true;
+        //    }
+        //    catch
+        //    {
+        //        return false;
+        //    }
+        //}
+
+        //public bool ParseControllerGet(MessageData msg)
+        //{
+        //    try
+        //    {
+        //        string[] tokens;
+        //        string[] coeff = new string[4];
+        //        char[] separators = { ',', '\t', ' ' };
+        //        tokens = msg.msg.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+        //        // Check if the input string is well formed and complete
+        //        if (!(tokens[0].ToLower().Equals("start") && tokens[8].ToLower().Equals(ReserwedWords.end)))
+        //        {
+        //            return false;
+        //        }
+        //        coeff[0] = tokens[1];
+        //        coeff[0] = tokens[2];
+        //        coeff[0] = tokens[3];
+        //        coeff[0] = tokens[4];
+
+        //        for(int i=0; i<4; i++)
+        //        {
+        //            K[i] = Convert.ToDouble(coeff[i]);
+        //        }
+        //        return true;
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
+        #endregion
+
+        #region Kalman
 
         private float GetRoll()
         {
@@ -252,6 +291,10 @@ namespace BalRobyGUI
             return gyro[2];
         }
 
+        #endregion
+
+#region Calibration
+
         public bool gyroCalibration()
         {
             if (stm32 == null)
@@ -298,6 +341,8 @@ namespace BalRobyGUI
             }
         }
 
+#endregion
+
         public void getControllerValues()
         {
             string cmd = ReservedWord.controller_get;
@@ -312,13 +357,10 @@ namespace BalRobyGUI
             stm32.SendCommand(sb.ToString());
         }
 
-        public bool parseMsgValues(MessageData msg)
+        public bool parseMsgValues(string [] tokens) 
         {            
             try
-            {
-                string[] tokens;
-                char[] separators = { ',', ':', ' ', ':' };
-                tokens = msg.msg.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            {                
                 // Check if the input string is well formed and complete
                 int index = tokens[6].IndexOf(ReserwedWords.end);
                 if (index > 0)
@@ -356,13 +398,10 @@ namespace BalRobyGUI
             }
         }
 
-        public bool parseMsgContrGet(MessageData msg)
+        public bool parseMsgContrGet(string[] tokens) 
         {
             try
-            {
-                string[] tokens;
-                char[] separators = { ',', ':', ' ' };
-                tokens = msg.msg.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            {                
                 // Check if the input string is well formed and complete
                 if (!(tokens[0].ToLower().Equals(ReservedWord.mpu) && tokens[5].ToLower().Equals(ReserwedWords.end)))
                 {
@@ -390,22 +429,22 @@ namespace BalRobyGUI
             }
         }
 
-        public void controllerToggle()
-        {
-            string cmd = ReservedWord.controller_toggle;
-            stm32.SendCommand(cmd);
-        }
+        //public void controllerToggle()
+        //{
+        //    string cmd = ReservedWord.controller_toggle;
+        //    stm32.SendCommand(cmd);
+        //}
 
         public void controllerSet(bool active)
         {
             string cmd;
             if (active)
             {
-                cmd = ReservedWord.controller_get + " 1";
+                cmd = ReservedWord.controller_toggle + " 1";
             }
             else
             {
-                cmd = ReservedWord.controller_set + " 0";
+                cmd = ReservedWord.controller_toggle + " 0";
             }
             stm32.SendCommand(cmd);
         }

@@ -26,9 +26,6 @@ namespace BalRobyGUI
         public TimeSpan _time { get; private set; }
         public double _data { get; private set; }
         public Queue<DataPoint> dataQ;
-        /*List<int> accX { get; set; }
-        List<int> accY { get; set; }
-        List<int> accZ { get; set; } */
         List<double> accX { get; set; }
         List<double> accY { get; set; }
         List<double> accZ { get; set; }
@@ -49,9 +46,7 @@ namespace BalRobyGUI
             tim.IsEnabled = false;
             tim.Tick += new EventHandler(timTick);
             time = new List<double>();
-            /*accX = new List<int>();
-            accY = new List<int>();
-            accZ = new List<int>();*/
+
             accX = new List<double>();
             accY = new List<double>();
             accZ = new List<double>();
@@ -78,29 +73,9 @@ namespace BalRobyGUI
             //linegraph.Plot(x, y);
         }
 
-        /*public void Plot(Queue<DataPoint> data)
-        {
-            //DataPoint[] dp = data.ToArray();
-            double[] x = new double[POINTS];
-            double[] y = new double[POINTS];
-            int i = 0;
-            foreach(DataPoint dp in data)
-            {
-                x[i] = dp.x;
-                y[i++] = dp.y;
-            }
-            //InteractiveDataDisplay.WPF.DataRect plotRect = new InteractiveDataDisplay.WPF.DataRect(x.Min(), y.Min(), x.Max(), y.Max());
-            InteractiveDataDisplay.WPF.DataRect plotRect = new InteractiveDataDisplay.WPF.DataRect(x[0], y.Min(), x.Max(), y.Max());
-            linegraph.SetPlotRect(plotRect);
-            Plot(x,y);
-        }*/
-
         public void Plot(int i)
         {
             double[] _time = new double[] { };
-            /*int[] acc_X = new int[] { };
-            int[] acc_Y = new int[] { };
-            int[] acc_Z = new int[] { }; */
             double[] acc_X = new double[] { };
             double[] acc_Y = new double[] { };
             double[] acc_Z = new double[] { };
@@ -112,47 +87,41 @@ namespace BalRobyGUI
                 accZ.RemoveAt(0);
             }
             _time = time.ToArray();
-                        
+
             switch (i)
             {
-                case 0: acc_X = accX.ToArray();
+                case 0:
+                    acc_X = accX.ToArray();
                     linegraphX.Plot(_time, acc_X); break;
-                case 1: acc_Y = accY.ToArray();
+                case 1:
+                    acc_Y = accY.ToArray();
                     linegraphY.Plot(_time, acc_Y); break;
-                case 2: acc_Z = accZ.ToArray();
+                case 2:
+                    acc_Z = accZ.ToArray();
                     linegraphZ.Plot(_time, acc_Z); break;
             }
-            
+
         }
 
-        //public void PlotMEMS(Queue<DataPoint> data)
         public void PlotMEMS()
         {
-            
-            //foreach(Queue<DataPoint> qdp in data)
-            //for (int i=0; i<3;i++)
+            int i = 0;            
+            double[] y1 = new double[POINTS];
+            double[] y2 = new double[POINTS];
+            double[] y3 = new double[POINTS];
+            double[] time = new double[POINTS];
+            var lg = new LineGraph();
+            foreach(DataPoint dp in dataQ)
             {
-                int i = 0;
-                //double[] x = new double[POINTS];
-                double[] y1 = new double[POINTS];
-                double[] y2 = new double[POINTS];
-                double[] y3 = new double[POINTS];
-                double[] time = new double[POINTS];
-                var lg = new LineGraph();
-                foreach(DataPoint dp in dataQ)
-                {
-                    time[i] = dp._time.ToOADate();
-                    y1[i] = dp.d1;
-                    y2[i] = dp.d2;
-                    y3[i++] = dp.d3;
-                }
-                InteractiveDataDisplay.WPF.DataRect plotRect = new InteractiveDataDisplay.WPF.DataRect(time[0], y1.Min(), time.Max(), y1.Max());
-//                linegraph.SetPlotRect(plotRect);
-//                linegraph.Children.Add(lg);
-                lg.Plot(time, y1);
-                lg.Plot(time, y2);
-                lg.Plot(time, y3);
+                time[i] = dp._time.ToOADate();
+                y1[i] = dp.d1;
+                y2[i] = dp.d2;
+                y3[i++] = dp.d3;
             }
+            InteractiveDataDisplay.WPF.DataRect plotRect = new InteractiveDataDisplay.WPF.DataRect(time[0], y1.Min(), time.Max(), y1.Max());
+            lg.Plot(time, y1);
+            lg.Plot(time, y2);
+            lg.Plot(time, y3);            
         }
 
         public void AddMEMSPoint(DataPoint mems)
@@ -174,10 +143,10 @@ namespace BalRobyGUI
             dp.d3 = mems.d3;
 
             dataQ.Enqueue(dp);
-            if(dataQ.Count>POINTS)
+            if (dataQ.Count > POINTS)
             {
                 dataQ.Dequeue();
-            }            
+            }
         }
 
         private void timTick(object sender, EventArgs e)

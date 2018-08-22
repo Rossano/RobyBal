@@ -139,51 +139,6 @@ namespace BalRobyGUI
             P[1, 0] -= K[1] * P[0, 0];
             P[1, 1] -= K[1] * P[0, 1];
 
-            // V 1.0 Initial
-/*            stateUpdate(gyro_m, dt);
-
-            /*
-            angle_err = angle_m - angle;
-            C0 = 1;
-
-            double PCt0 = C0 * P[0, 0];
-            double PCt1 = C0 * P[1, 0];
-
-            double E = R_angle + C0 * PCt0;
-
-            K[0] = PCt0 / E;
-            K[1] = PCt1 / E;
-
-            double t0 = PCt0;1
-            double t1 = C0 * P[0, 1];
-
-            P[0, 0] -= K[0] * t0;
-            P[0, 1] -= K[0] * t1;
-            P[1, 0] -= K[1] * t0;
-            P[1, 1] -= K[1] * t1;
-
-            angle += K[0] * angle_err;
-            q_bias += K[1] * angle_err;
-            X[0] = angle;
-            X[1] = q_bias;
-            */
- /*           double y = angle_m - angle;
-            double S = P[0, 0] + R_angle;
-
-            K[0] = P[0, 0] / S;
-            K[1] = P[1, 1] / S;
-
-            angle += K[0] * y;
-            q_bias += K[1] * y;
-
-            double P00_temp = P[0, 0];
-            double P01_temp = P[0, 1];
-
-            P[0, 0] -= K[0] * P00_temp;
-            P[0, 1] -= K[0] * P01_temp;
-            P[1, 0] -= K[1] * P00_temp;
-            P[1, 1] -= K[1] * P01_temp;
-*/
             X[0] = angle;
             X[1] = q_bias;
             return X;
